@@ -96,8 +96,7 @@ final class MobileDetectExtensionTest extends TestCase
             $name = $function->getName();
             $callable = $function->getCallable();
             self::assertArrayHasKey($name, $names);
-            self::assertIsArray($callable);
-            self::assertSame($names[$name], $callable[1]);
+            self::assertIsCallable($callable);
         }
     }
 

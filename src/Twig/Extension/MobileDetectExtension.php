@@ -60,19 +60,19 @@ class MobileDetectExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            new TwigFunction('is_mobile', [$this, 'isMobile']),
-            new TwigFunction('is_tablet', [$this, 'isTablet']),
-            new TwigFunction('is_device', [$this, 'isDevice']),
-            new TwigFunction('is_full_view', [$this, 'isFullView']),
-            new TwigFunction('is_mobile_view', [$this, 'isMobileView']),
-            new TwigFunction('is_tablet_view', [$this, 'isTabletView']),
-            new TwigFunction('is_not_mobile_view', [$this, 'isNotMobileView']),
-            new TwigFunction('is_ios', [$this, 'isIOS']),
-            new TwigFunction('is_android_os', [$this, 'isAndroidOS']),
-            new TwigFunction('is_windows_os', [$this, 'isWindowsOS']),
-            new TwigFunction('full_view_url', [$this, 'fullViewUrl'], ['is_safe' => ['html']]),
-            new TwigFunction('device_version', [$this, 'deviceVersion']),
-            new TwigFunction('rules_list', [$this, 'getRules']),
+            new TwigFunction('is_mobile', $this->isMobile(...)),
+            new TwigFunction('is_tablet', $this->isTablet(...)),
+            new TwigFunction('is_device', $this->isDevice(...)),
+            new TwigFunction('is_full_view', $this->isFullView(...)),
+            new TwigFunction('is_mobile_view', $this->isMobileView(...)),
+            new TwigFunction('is_tablet_view', $this->isTabletView(...)),
+            new TwigFunction('is_not_mobile_view', $this->isNotMobileView(...)),
+            new TwigFunction('is_ios', $this->isIOS(...)),
+            new TwigFunction('is_android_os', $this->isAndroidOS(...)),
+            new TwigFunction('is_windows_os', $this->isWindowsOS(...)),
+            new TwigFunction('full_view_url', $this->fullViewUrl(...), ['is_safe' => ['html']]),
+            new TwigFunction('device_version', $this->deviceVersion(...)),
+            new TwigFunction('rules_list', $this->getRules(...)),
         ];
     }
 
