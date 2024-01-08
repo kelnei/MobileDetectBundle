@@ -83,7 +83,6 @@ class MobileDetectExtension extends AbstractExtension
             $this->mobileDetector->getTabletDevices(),
             $this->mobileDetector->getOperatingSystems(),
             $this->mobileDetector->getBrowsers(),
-            $this->mobileDetector->getUtilities()
         );
     }
 

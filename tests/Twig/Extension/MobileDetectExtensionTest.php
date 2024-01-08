@@ -6,6 +6,7 @@ namespace MobileDetectBundle\Tests\Twig\Extension;
 
 use MobileDetectBundle\DeviceDetector\MobileDetector;
 use MobileDetectBundle\Helper\DeviceView;
+use MobileDetectBundle\Tests\WithConsecutive;
 use MobileDetectBundle\Twig\Extension\MobileDetectExtension;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -111,10 +112,12 @@ final class MobileDetectExtensionTest extends TestCase
     {
         $this->mobileDetector->expects(self::exactly(3))
             ->method('version')
-            ->withConsecutive(
-                [self::equalTo('Version'), self::equalTo(MobileDetector::VERSION_TYPE_STRING)],
-                [self::equalTo('Firefox'), self::equalTo(MobileDetector::VERSION_TYPE_STRING)],
-                [self::equalTo('Firefox'), self::equalTo(MobileDetector::VERSION_TYPE_FLOAT)]
+            ->with(
+                ...WithConsecutive::create(
+                    [self::equalTo('Version'), self::equalTo(MobileDetector::VERSION_TYPE_STRING)],
+                    [self::equalTo('Firefox'), self::equalTo(MobileDetector::VERSION_TYPE_STRING)],
+                    [self::equalTo('Firefox'), self::equalTo(MobileDetector::VERSION_TYPE_FLOAT)]
+                )
             )
             ->willReturn(false, '98.0', 98.0)
         ;
@@ -343,9 +346,11 @@ final class MobileDetectExtensionTest extends TestCase
     {
         $this->mobileDetector->expects(self::exactly(1))
             ->method('__call')
-            ->withConsecutive(
-                [self::equalTo('isWindowsMobileOS')],
-                [self::equalTo('isWindowsPhoneOS')]
+            ->with(
+                ...WithConsecutive::create(
+                    [self::equalTo('isWindowsMobileOS')],
+                    [self::equalTo('isWindowsPhoneOS')]
+                )
             )
             ->willReturnOnConsecutiveCalls(true)
         ;
@@ -358,9 +363,11 @@ final class MobileDetectExtensionTest extends TestCase
     {
         $this->mobileDetector->expects(self::exactly(2))
             ->method('__call')
-            ->withConsecutive(
-                [self::equalTo('isWindowsMobileOS')],
-                [self::equalTo('isWindowsPhoneOS')]
+            ->with(
+                ...WithConsecutive::create(
+                    [self::equalTo('isWindowsMobileOS')],
+                    [self::equalTo('isWindowsPhoneOS')]
+                )
             )
             ->willReturn(false)
         ;

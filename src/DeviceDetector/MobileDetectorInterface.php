@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace MobileDetectBundle\DeviceDetector;
 
+use Detection\Exception\MobileDetectException;
+
 /**
  * @method bool isiPhone()
  * @method bool isBlackBerry()
@@ -196,131 +198,42 @@ namespace MobileDetectBundle\DeviceDetector;
  * @method bool isNetFront()
  * @method bool isGenericBrowser()
  * @method bool isPaleMoon()
- * @method bool isBot()
- * @method bool isMobileBot()
- * @method bool isDesktopMode()
- * @method bool isTV()
  * @method bool isWebKit()
  * @method bool isConsole()
  * @method bool isWatch()
  */
 interface MobileDetectorInterface
 {
+    public const VERSION_TYPE_STRING = 'text';
+
+    public const VERSION_TYPE_FLOAT = 'float';
+
     /**
      * Magic overloading method.
      *
      * @method bool is[...]()
      *
-     * @param string $name
-     * @param array  $arguments
-     *
-     * @throws \BadMethodCallException when the method doesn't exist and doesn't start with 'is'
-     */
-    public function __call($name, $arguments);
-
-    /**
-     * Retrieve the list of known browsers. Specifically, the user agents.
-     *
-     * @return array list of browsers / user agents
-     */
-    public static function getBrowsers();
-
-    /**
-     * Retrieve the list of mobile operating systems.
-     *
-     * @return array the list of mobile operating systems
-     */
-    public static function getOperatingSystems();
-
-    /**
-     * Retrieve the list of known phone devices.
-     *
-     * @return array list of phone devices
-     */
-    public static function getPhoneDevices();
-
-    /**
-     * Get the properties array.
-     *
-     * @return array
-     */
-    public static function getProperties();
-
-    /**
-     * Get the current script version.
-     * This is useful for the demo.php file,
-     * so people can check on what version they are testing
-     * for mobile devices.
-     *
-     * @return string the version number in semantic version format
-     */
-    public static function getScriptVersion();
-
-    /**
-     * Retrieve the list of known tablet devices.
-     *
-     * @return array list of tablet devices
-     */
-    public static function getTabletDevices();
-
-    /**
-     * Alias for getBrowsers() method.
-     *
-     * @return array list of user agents
-     */
-    public static function getUserAgents();
-
-    /**
-     * Retrieve the list of known utilities.
-     *
-     * @return array list of utilities
-     */
-    public static function getUtilities();
-
-    /**
-     * Check the HTTP headers for signs of mobile.
-     * This is the fastest mobile check possible; it's used
-     * inside isMobile() method.
+     * @throws BadMethodCallException   when the method doesn't exist and doesn't start with 'is'
+     * @throws \Exception
+     * @throws InvalidArgumentException
      *
      * @return bool
      */
-    public function checkHttpHeadersForMobile();
+    public function __call(string $name, array $arguments);
 
     /**
-     * Retrieves the cloudfront headers.
+     * Get the current script version.
+     * Used in demo.php file.
      *
-     * @return array
+     * @return string the version number in semantic version format
      */
-    public function getCfHeaders();
+    public function getVersion(): string;
 
     /**
-     * Set CloudFront headers
-     * http://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/header-caching.html#header-caching-web-device.
-     *
-     * @param array $cfHeaders List of HTTP headers
-     *
-     * @return bool If there were CloudFront headers to be set
+     * On startup Mobile Detect library will auto-initiate from the existing
+     * HTTP headers extracted from $_SERVER.
      */
-    public function setCfHeaders($cfHeaders = null);
-
-    /**
-     * Retrieves a particular header. If it doesn't exist, no exception/error is caused.
-     * Simply null is returned.
-     *
-     * @param string $header The name of the header to retrieve. Can be HTTP compliant such as
-     *                       "User-Agent" or "X-Device-User-Agent" or can be php-esque with the
-     *                       all-caps, HTTP_ prefixed, underscore seperated awesomeness.
-     *
-     * @return string|null the value of the header
-     */
-    public function getHttpHeader($header);
-
-    /**
-     * Retrieves the HTTP headers.
-     *
-     * @return array
-     */
-    public function getHttpHeaders();
+    public function autoInitKnownHttpHeaders(): void;
 
     /**
      * Set the HTTP Headers. Must be PHP-flavored. This method will reset existing headers.
@@ -328,13 +241,28 @@ interface MobileDetectorInterface
      * @param array $httpHeaders The headers to set. If null, then using PHP's _SERVER to extract
      *                           the headers. The default null is left for backwards compatibility.
      */
-    public function setHttpHeaders($httpHeaders = null);
+    public function setHttpHeaders(array $httpHeaders = []): void;
 
-    public function getMatchesArray();
+    /**
+     * Retrieves the HTTP headers.
+     */
+    public function getHttpHeaders(): array;
 
-    public function getMatchingRegex();
+    public function hasHttpHeaders(): bool;
 
-    public function getMobileHeaders();
+    /**
+     * Retrieves a particular header. If it doesn't exist, no exception/error is caused.
+     * Simply null is returned.
+     *
+     * @param string $header The name of the header to retrieve. Can be HTTP compliant such as
+     *                       "User-Agent" or "X-Device-User-Agent" or can be php-esque with the
+     *                       all-caps, HTTP_ prefixed, underscore separated awesomeness.
+     *
+     * @return string|null the value of the header
+     */
+    public function getHttpHeader(string $header): ?string;
+
+    public function getMobileHeaders(): array;
 
     /**
      * Get all possible HTTP headers that
@@ -342,49 +270,100 @@ interface MobileDetectorInterface
      *
      * @return array list of HTTP headers
      */
-    public function getUaHttpHeaders();
+    public function getUaHttpHeaders(): array;
+
+    /**
+     * Retrieves the HTTP CloudFront headers
+     * that trigger a mobile detection.
+     */
+    public function getCloudFrontHttpHeaders(): array;
+
+    /**
+     * Set the User-Agent to be used.
+     *
+     * @param string $userAgent the User-Agent string
+     */
+    public function setUserAgent(string $userAgent): string;
 
     /**
      * Retrieve the User-Agent.
      *
      * @return string|null the user agent if it's set
      */
-    public function getUserAgent();
+    public function getUserAgent(): ?string;
+
+    public function hasUserAgent(): bool;
+
+    public function isUserAgentEmpty(): bool;
+
+    public function getMatchingRegex(): ?string;
+
+    public function getMatchesArray(): ?array;
 
     /**
-     * Set the User-Agent to be used.
+     * Retrieve the list of known phone devices.
      *
-     * @param string $userAgent the user agent string to set
-     *
-     * @return string|null
+     * @return array list of phone devices
      */
-    public function setUserAgent($userAgent = null);
+    public static function getPhoneDevices(): array;
 
     /**
-     * This method checks for a certain property in the
-     * userAgent.
+     * Retrieve the list of known tablet devices.
      *
-     * @param string $key
-     *
-     * @return bool|int|null
+     * @return array list of tablet devices
      */
-    public function is($key);
+    public static function getTabletDevices(): array;
+
+    /**
+     * Retrieve the list of known browsers. Specifically, the user agents.
+     *
+     * @return array list of browsers / user agents
+     */
+    public static function getBrowsers(): array;
+
+    /**
+     * Method gets the mobile detection rules.
+     * This method is used for the magic methods $detect->is*().
+     * Retrieve the current set of rules.
+     */
+    public function getRules(): array;
+
+    /**
+     * Retrieve the list of mobile operating systems.
+     *
+     * @return array the list of mobile operating systems
+     */
+    public static function getOperatingSystems(): array;
+
+    /**
+     * Check the HTTP headers for signs of mobile.
+     * This is the fastest mobile check possible; it's used
+     * inside isMobile() method.
+     */
+    public function checkHttpHeadersForMobile(): bool;
 
     /**
      * Check if the device is mobile.
      * Returns true if any type of mobile device detected, including special ones.
      *
-     * @return bool
+     * @throws MobileDetectException
      */
-    public function isMobile();
+    public function isMobile(): bool;
 
     /**
      * Check if the device is a tablet.
      * Return true if any type of tablet device is detected.
      *
-     * @return bool
+     * @throws MobileDetectException
      */
-    public function isTablet();
+    public function isTablet(): bool;
+
+    /**
+     * Checks if a rule (e.g. isIphone, isIOS, etc.) matches its regex against the User-Agent.
+     *
+     * @throws MobileDetectException
+     */
+    public function is(string $ruleName): bool;
 
     /**
      * Some detection rules are relative (not standard),
@@ -395,33 +374,38 @@ interface MobileDetectorInterface
      * This method will be used to check custom regexes against
      * the User-Agent string.
      *
-     * @param string $userAgent
-     *
-     * @return bool
+     * @todo: search in the HTTP headers too.
      */
-    public function match($regex, $userAgent = null);
+    public function match(string $regex, string $userAgent): bool;
 
     /**
      * Prepare the version number.
      *
-     * @param string $ver The string version, like "2.6.21.2152";
+     * @todo Remove the error suppression from str_replace() call.
      *
-     * @return float
+     * @param string $ver The string version, like "2.6.21.2152";
      */
-    public function prepareVersionNo($ver);
+    public function prepareVersionNo(string $ver): float;
 
     /**
      * Check the version of the given property in the User-Agent.
-     * Will return a float number. (eg. 2_0 will return 2.0, 4.3.1 will return 4.31).
+     * Will return a float number. (e.g. 2_0 will return 2.0, 4.3.1 will return 4.31).
      *
      * @param string $propertyName The name of the property. See self::getProperties() array
      *                             keys for all possible properties.
      * @param string $type         Either self::VERSION_TYPE_STRING to get a string value or
      *                             self::VERSION_TYPE_FLOAT indicating a float value. This parameter
      *                             is optional and defaults to self::VERSION_TYPE_STRING. Passing an
-     *                             invalid parameter will default to the this type as well.
+     *                             invalid parameter will default to the type as well.
      *
-     * @return string|float the version of the property we are trying to extract
+     * @return string|float|false the version of the property we are trying to extract
      */
-    public function version($propertyName, $type = MobileDetector::VERSION_TYPE_STRING);
+    public function version(string $propertyName, string $type = self::VERSION_TYPE_STRING): bool|float|string;
+
+    public static function flattenHeaders(array $httpHeaders): string;
+
+    /**
+     * Get the properties array.
+     */
+    public static function getProperties(): array;
 }

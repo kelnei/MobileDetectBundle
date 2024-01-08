@@ -7,3 +7,5 @@ composer.lock
 phpcs.xml
 phpstan.neon
 phpunit.xml
+.phpactor.json
+.phpunit.cache/
