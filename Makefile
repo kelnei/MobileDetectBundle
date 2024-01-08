@@ -1,7 +1,7 @@
 all: test
 
 phpunit:
-	php vendor/bin/phpunit
+	php vendor/bin/phpunit --no-coverage
 
 lint:
 	php vendor/bin/php-cs-fixer fix --diff

@@ -15,7 +15,6 @@ namespace MobileDetectBundle\DeviceDetector;
 
 use Detection\MobileDetect;
 
-
 /**
  * @author suncat2000 <nikolay.kotovsky@gmail.com>
  */

@@ -3,9 +3,7 @@
 // Workaround by Oleg Andreyev
 // https://gist.github.com/oleg-andreyev/85c74dbf022237b03825c7e9f4439303
 
-/**
-Usage: ->with(...WithConsecutive::create(...$withCodes))
-*/
+// Usage: ->with(...WithConsecutive::create(...$withCodes))
 
 declare(strict_types=1);
 
@@ -15,7 +13,6 @@ use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\Constraint;
 use PHPUnit\Framework\Constraint\IsEqual;
-use RuntimeException;
 
 class WithConsecutive
 {
@@ -33,11 +30,11 @@ class WithConsecutive
 
         foreach ($parameterGroups as $index => $parameters) {
             // initial
-            $parametersCount ??= count($parameters);
+            $parametersCount ??= \count($parameters);
 
             // compare
-            if ($parametersCount !== count($parameters)) {
-                throw new RuntimeException('Parameters count max much in all groups');
+            if ($parametersCount !== \count($parameters)) {
+                throw new \RuntimeException('Parameters count max much in all groups');
             }
 
             // prepare parameters
@@ -64,8 +61,8 @@ class WithConsecutive
                 $map ??= $values[$index];
 
                 $expectedArg = array_shift($map);
-                if ($expectedArg === null) {
-                    throw new RuntimeException('No more expected calls');
+                if (null === $expectedArg) {
+                    throw new \RuntimeException('No more expected calls');
                 }
                 $expectedArg->evaluate($value);
 
